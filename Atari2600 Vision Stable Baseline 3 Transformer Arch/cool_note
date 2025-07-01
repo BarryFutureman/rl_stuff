@@ -1,0 +1,7 @@
+2024/04/09
+Pausing on this project, quite a bit of work needs to be done to make transformers models to work
+with stable baselines3. It's not impossible, but will take some time. Will come back to play around with architectures.
+
+What I have so far:
+- remember to use a large n_steps, otherwise the training will not work well
+- loading and saving models code is in base_class.py, issue is how to make the model a pretrained transformer

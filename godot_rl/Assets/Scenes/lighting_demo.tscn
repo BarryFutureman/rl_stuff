@@ -1,0 +1,92 @@
+[gd_scene load_steps=15 format=3 uid="uid://re72nrjeo0bl"]
+
+[ext_resource type="Script" path="res://Assets/Scenes/ai_box.gd" id="1_isfem"]
+[ext_resource type="Material" uid="uid://yqnmw3xd3m2l" path="res://Assets/Materials/floor.tres" id="1_j8dap"]
+[ext_resource type="Script" path="res://Assets/Scenes/BoxAIController3D.gd" id="2_0h4ae"]
+[ext_resource type="Script" path="res://addons/godot_rl_agents/sync.gd" id="4_sb4y7"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_w04il"]
+sky_top_color = Color(0.301961, 0.490196, 0.447059, 1)
+sky_horizon_color = Color(0.694118, 0.643137, 0.611765, 1)
+
+[sub_resource type="Sky" id="Sky_7a64x"]
+sky_material = SubResource("ProceduralSkyMaterial_w04il")
+
+[sub_resource type="Environment" id="Environment_ryuib"]
+background_mode = 2
+sky = SubResource("Sky_7a64x")
+ambient_light_source = 3
+ambient_light_sky_contribution = 0.55
+reflected_light_source = 2
+tonemap_mode = 3
+sdfgi_enabled = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_o4fc6"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_v4kco"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ai0jg"]
+size = Vector3(10, 0.01, 10)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_i6e45"]
+data = PackedVector3Array(-5, 0.005, 5, 5, 0.005, 5, -5, -0.005, 5, 5, 0.005, 5, 5, -0.005, 5, -5, -0.005, 5, 5, 0.005, -5, -5, 0.005, -5, 5, -0.005, -5, -5, 0.005, -5, -5, -0.005, -5, 5, -0.005, -5, 5, 0.005, 5, 5, 0.005, -5, 5, -0.005, 5, 5, 0.005, -5, 5, -0.005, -5, 5, -0.005, 5, -5, 0.005, -5, -5, 0.005, 5, -5, -0.005, -5, -5, 0.005, 5, -5, -0.005, 5, -5, -0.005, -5, 5, 0.005, 5, -5, 0.005, 5, 5, 0.005, -5, -5, 0.005, 5, -5, 0.005, -5, 5, 0.005, -5, -5, -0.005, 5, 5, -0.005, 5, -5, -0.005, -5, 5, -0.005, 5, 5, -0.005, -5, -5, -0.005, -5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lxq5m"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_11su0"]
+emission_enabled = true
+emission = Color(0.588235, 0.72549, 0.180392, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_mtjaw"]
+material = SubResource("StandardMaterial3D_11su0")
+
+[node name="LightingDemo" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+light_energy = 2.263
+light_indirect_energy = 3.424
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ryuib")
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.994894, 0)
+script = ExtResource("1_isfem")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D"]
+mesh = SubResource("BoxMesh_o4fc6")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+shape = SubResource("BoxShape3D_v4kco")
+
+[node name="AIController3D" type="Node3D" parent="CharacterBody3D"]
+script = ExtResource("2_0h4ae")
+reset_after = 200
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+material_override = ExtResource("1_j8dap")
+mesh = SubResource("BoxMesh_ai0jg")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Floor"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_i6e45")
+
+[node name="Area3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.55619, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_lxq5m")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Area3D"]
+mesh = SubResource("BoxMesh_mtjaw")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.85896, 0.512043, 0, -0.512043, 0.85896, 0, 3, 6.385)
+
+[node name="Sync" type="Node" parent="."]
+script = ExtResource("4_sb4y7")
+speed_up = 256.0
+
+[connection signal="body_entered" from="Area3D" to="CharacterBody3D" method="_on_area_3d_body_entered"]
